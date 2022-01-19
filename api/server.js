@@ -90,29 +90,35 @@ app.get("/api/google-token-generate", async (req, res) => {
   try {
     const token = await oAuth2Client.getToken(req.query.code);
     res.send(token);
-  } catch (err) {}
+  } catch (err) {
+    res.status(500).send(err);
+  }
 });
 
 app.get("/api/schedules", async (req, res) => {
-  const cacheKey = `weather:${JSON.stringify(req.query)}`;
-  let data;
-  if (!cache.has(cacheKey)) {
-    const auth = createOAuthClient();
-    auth.setCredentials(req.query);
-    const calendar = google.calendar({ version: "v3", auth });
-    const result = await calendar.events.list({
-      calendarId: "primary",
-      timeMin: new Date().toISOString(),
-      maxResults: 5,
-      singleEvents: true,
-      orderBy: "startTime",
-    });
-    data = result;
-    cache.set(cacheKey, data);
-  } else {
-    data = cache.get(cacheKey);
+  try {
+    const cacheKey = `weather:${JSON.stringify(req.query)}`;
+    let data;
+    if (!cache.has(cacheKey)) {
+      const auth = createOAuthClient();
+      auth.setCredentials(req.query);
+      const calendar = google.calendar({ version: "v3", auth });
+      const result = await calendar.events.list({
+        calendarId: "primary",
+        timeMin: new Date().toISOString(),
+        maxResults: 5,
+        singleEvents: true,
+        orderBy: "startTime",
+      });
+      data = result;
+      cache.set(cacheKey, data);
+    } else {
+      data = cache.get(cacheKey);
+    }
+    res.send(data);
+  } catch (err) {
+    res.status(500).send(err);
   }
-  res.send(data);
 });
 
 app.listen(3001, () => {

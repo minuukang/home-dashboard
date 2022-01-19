@@ -16,6 +16,7 @@ export const getAccessTokenData = async (): Promise<GoogleAccessToken> => {
       const json = await response.json();
       tokenData = JSON.stringify(json.tokens);
       sessionStorage.setItem("google_access_token", tokenData);
+      window.history.replaceState(null, "", "/");
     } else {
       const response = await fetch("/api/google-token-url");
       const json = await response.json();

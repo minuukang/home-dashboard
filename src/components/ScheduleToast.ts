@@ -99,7 +99,11 @@ export class ScheduleToast extends LitElement {
       { signal: this.abortController.signal }
     );
     const json = await response.json();
-    this.items = json.data.items;
+    if (response.ok) {
+      this.items = json.data.items;
+    } else {
+      location.reload();
+    }
   }
 
   public render() {

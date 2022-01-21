@@ -48,6 +48,13 @@ export class DigitalClock extends LitElement {
     super.connectedCallback();
     this.clockTimer = window.setInterval(() => {
       this.currentDate = new Date();
+      this.dispatchEvent(
+        new CustomEvent("change", {
+          detail: {
+            date: this.currentDate,
+          },
+        })
+      );
     }, 500);
   }
 

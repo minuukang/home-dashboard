@@ -17,6 +17,14 @@ export class HomeDashboard extends LitElement {
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      transition: all 500ms;
+      background-color: white;
+      color: black;
+    }
+
+    :host(.night) {
+      background-color: black;
+      color: white;
     }
   `;
 
@@ -30,12 +38,17 @@ export class HomeDashboard extends LitElement {
     });
   }
 
+  protected handleChangeDate(event: CustomEvent<{ date: Date }>) {
+    const hours = event.detail.date.getHours();
+    this.classList.toggle("night", hours < 7);
+  }
+
   public render() {
     if (!this.accessToken) {
       return null;
     }
     return html`
-      <digital-clock></digital-clock>
+      <digital-clock @change=${this.handleChangeDate}></digital-clock>
       <weather-information
         lat=${import.meta.env.VITE_WEATHER_LAT}
         lon=${import.meta.env.VITE_WEATHER_LON}

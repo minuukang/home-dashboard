@@ -45,6 +45,7 @@ export class ScheduleToast extends LitElement {
       margin: 0;
       position: relative;
       overflow: hidden;
+      box-shadow: 1px 1px 5px rgb(255 255 255 / 50%);
     }
 
     dl::after {

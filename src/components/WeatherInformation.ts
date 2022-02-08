@@ -1,6 +1,7 @@
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { toEmojiSvg } from "../helpers/emoji";
+import { createFetcherAndAbortController } from "../helpers/fetch";
 import { parseWeatherApi, WeatherResponse } from "../helpers/weather";
 
 @customElement("weather-information")
@@ -34,28 +35,23 @@ export class WeatherInformation extends LitElement {
   @state()
   protected data: WeatherResponse | null = null;
 
-  protected abortController = new AbortController();
+  protected fetcher = createFetcherAndAbortController(
+    () => `/api/weather?lat=${this.lat}&lon=${this.lon}`,
+    json => this.data = json
+  );
 
   public connectedCallback(): void {
     super.connectedCallback();
-    this.fetchData();
-    const timer = window.setInterval(() => this.fetchData(), 1000 * 60 * 30);
-    this.abortController.signal.addEventListener("abort", () => {
+    this.fetcher.call();
+    const timer = window.setInterval(() => this.fetcher.call(), 1000 * 60 * 30);
+    this.fetcher.controller.signal.addEventListener("abort", () => {
       window.clearInterval(timer);
     });
   }
 
   public disconnectedCallback() {
     super.disconnectedCallback();
-    this.abortController.abort();
-  }
-
-  protected fetchData() {
-    fetch(`/api/weather?lat=${this.lat}&lon=${this.lon}`, {
-      signal: this.abortController.signal,
-    })
-      .then((response) => response.json())
-      .then((json) => (this.data = json));
+    this.fetcher.abort();
   }
 
   public render() {

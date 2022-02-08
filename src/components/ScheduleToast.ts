@@ -2,6 +2,7 @@ import { css, html, LitElement } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { customElement, state, property } from "lit/decorators.js";
 import { GoogleAccessToken } from "../helpers/auth";
+import { createFetcherAndAbortController } from "../helpers/fetch";
 
 interface CalendarEvent {
   created: string;
@@ -78,33 +79,25 @@ export class ScheduleToast extends LitElement {
   @state()
   public items: CalendarEvent[] = [];
 
-  protected abortController = new AbortController();
+  protected fetcher = createFetcherAndAbortController(
+    () => `/api/schedules?${new URLSearchParams(Object.entries(this.accessToken))}`,
+    json => {
+      this.items = json.data.items;
+    }
+  );
 
   public connectedCallback(): void {
     super.connectedCallback();
-    this.fetchData();
-    const timer = window.setInterval(() => this.fetchData(), 1000 * 60 * 10);
-    this.abortController.signal.addEventListener("abort", () => {
+    this.fetcher.call();
+    const timer = window.setInterval(() => this.fetcher.call(), 1000 * 60 * 10);
+    this.fetcher.controller.signal.addEventListener("abort", () => {
       window.clearInterval(timer);
     });
   }
 
   public disconnectedCallback() {
     super.disconnectedCallback();
-    this.abortController.abort();
-  }
-
-  protected async fetchData() {
-    const response = await fetch(
-      `/api/schedules?${new URLSearchParams(Object.entries(this.accessToken))}`,
-      { signal: this.abortController.signal }
-    );
-    const json = await response.json();
-    if (response.ok) {
-      this.items = json.data.items;
-    } else {
-      location.reload();
-    }
+    this.fetcher.abort();
   }
 
   public render() {

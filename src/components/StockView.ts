@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { customElement, state, property } from "lit/decorators.js";
+import { createFetcherAndAbortController } from "../helpers/fetch";
 
 interface StockResult {
   cd: string;
@@ -58,32 +59,26 @@ export class StockView extends LitElement {
   @property()
   public name: string | undefined;
 
-  protected abortController = new AbortController();
-  protected timer = 0;
+  protected fetcher = createFetcherAndAbortController(
+    () => `/api/stock?code=${this.code}`,
+    json => this.data = json.result
+  );
 
   @state()
   protected data: StockResult | null = null;
 
   public connectedCallback(): void {
     super.connectedCallback();
-    this.fetchData();
-    this.timer = window.setInterval(() => this.fetchData(), 1000 * 60 * 30);
-    this.abortController.signal.addEventListener("abort", () => {
-      window.clearInterval(this.timer);
+    this.fetcher.call();
+    const timer = window.setInterval(() => this.fetcher.call(), 1000 * 60 * 30);
+    this.fetcher.controller.signal.addEventListener("abort", () => {
+      window.clearInterval(timer);
     });
   }
 
   public disconnectedCallback() {
     super.disconnectedCallback();
-    this.abortController.abort();
-  }
-
-  protected fetchData() {
-    fetch(`/api/stock?code=${this.code}`, {
-      signal: this.abortController.signal,
-    })
-      .then((response) => response.json())
-      .then((json) => (this.data = json.result));
+    this.fetcher.abort();
   }
 
   public render() {

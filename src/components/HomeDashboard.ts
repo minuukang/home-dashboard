@@ -20,6 +20,7 @@ export class HomeDashboard extends LitElement {
       transition: all 500ms;
       background-color: white;
       color: black;
+      cursor: none;
     }
 
     :host(.night) {

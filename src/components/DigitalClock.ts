@@ -5,7 +5,7 @@ const timeFormat = (v: number) => v.toString().padStart(2, "0");
 const dayFormat = [
   "Sunday",
   "Monsday",
-  "Thuesday",
+  "Tuesday",
   "Wednesday",
   "Thursday",
   "Friday",

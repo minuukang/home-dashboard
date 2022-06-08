@@ -4,7 +4,7 @@ import { customElement, state } from "lit/decorators.js";
 const timeFormat = (v: number) => v.toString().padStart(2, "0");
 const dayFormat = [
   "Sunday",
-  "Monsday",
+  "Monday",
   "Tuesday",
   "Wednesday",
   "Thursday",

@@ -19,7 +19,7 @@ app.get("/api/stock", async (req, res) => {
   let data;
   if (!cache.has(cacheKey)) {
     const response = await fetch(
-      `https://m.stock.naver.com/api/item/getOverallHeaderItem.nhn?code=${code}`
+      `https://m.stock.naver.com/api/stock/${code}/basic`
     );
     data = await response.json();
     cache.set(cacheKey, data);

@@ -5,6 +5,7 @@ import "./DigitalClock";
 import "./StockView";
 import "./WeatherInformation";
 import "./ScheduleToast";
+import "./Calender";
 import { getAccessTokenData, GoogleAccessToken } from "../helpers/auth";
 
 @customElement("home-dashboard")
@@ -49,6 +50,7 @@ export class HomeDashboard extends LitElement {
       return null;
     }
     return html`
+      <calender-view></calender-view>
       <digital-clock @change=${this.handleChangeDate}></digital-clock>
       <weather-information
         lat=${import.meta.env.VITE_WEATHER_LAT}

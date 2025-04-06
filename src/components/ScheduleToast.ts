@@ -3,6 +3,7 @@ import { repeat } from "lit/directives/repeat.js";
 import { customElement, state, property } from "lit/decorators.js";
 import { GoogleAccessToken } from "../helpers/auth";
 import { createFetcherAndAbortController } from "../helpers/fetch";
+import { toEmojiSvg } from "../helpers/emoji";
 
 interface CalendarEvent {
   created: string;
@@ -71,6 +72,12 @@ export class ScheduleToast extends LitElement {
       margin: 0.5em 0 0 0;
       font-size: 0.7em;
     }
+
+    .emoji {
+      width: 1em;
+      height: 1em;
+      vertical-align: middle;
+    }
   `;
 
   @property()
@@ -106,18 +113,18 @@ export class ScheduleToast extends LitElement {
     }
     return html`
       ${repeat(
-        this.items,
-        (item) => item.id,
-        (item) => {
-          const startDate = new Date(item.start.dateTime);
-          return html`
+      this.items,
+      (item) => item.id,
+      (item) => {
+        const startDate = new Date(item.start.dateTime);
+        return html`
             <dl>
-              <dt>${item.summary}</dt>
+              <dt>${toEmojiSvg(item.summary)}</dt>
               <dd>${startDate.toLocaleString()}</dd>
             </dl>
           `;
-        }
-      )}
+      }
+    )}
     `;
   }
 }

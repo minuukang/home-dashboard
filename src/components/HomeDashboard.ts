@@ -45,6 +45,10 @@ export class HomeDashboard extends LitElement {
     this.classList.toggle("night", hours < 7);
   }
 
+  protected handleChangeAccessToken(event: CustomEvent<{ accessToken: GoogleAccessToken }>) {
+    this.accessToken = event.detail.accessToken;
+  }
+
   public render() {
     if (!this.accessToken) {
       return null;
@@ -60,7 +64,7 @@ export class HomeDashboard extends LitElement {
         name=${import.meta.env.VITE_STOCK_VIEW_NAME}
         code=${import.meta.env.VITE_STOCK_VIEW_CODE}
       ></stock-view>
-      <schedule-toast .accessToken=${this.accessToken}></schedule-toast>
+      <schedule-toast .accessToken=${this.accessToken} @change-access-token=${this.handleChangeAccessToken}></schedule-toast>
     `;
   }
 }

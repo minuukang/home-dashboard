@@ -90,6 +90,14 @@ export class ScheduleToast extends LitElement {
     () => `/api/schedules?${new URLSearchParams(Object.entries(this.accessToken))}`,
     json => {
       this.items = json.data.items;
+      if (json.data.newTokens) {
+        // this.accessToken = json.data.newTokens;
+        this.dispatchEvent(new CustomEvent("change-access-token", {
+          detail: {
+            accessToken: json.data.newTokens,
+          },
+        }));
+      }
     }
   );
 

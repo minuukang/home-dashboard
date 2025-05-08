@@ -1,6 +1,6 @@
 export interface GoogleAccessToken {
   access_token: string;
-  expire_date: number;
+  expiry_date: number;
   scope: string;
   token_type: string;
 }

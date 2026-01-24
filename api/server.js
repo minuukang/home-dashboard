@@ -124,7 +124,7 @@ app.get("/api/schedules", async (req, res) => {
       const result = await calendar.events.list({
         calendarId: "primary",
         timeMin: new Date().toISOString(),
-        maxResults: 5,
+        maxResults: 4,
         singleEvents: true,
         orderBy: "startTime",
       });

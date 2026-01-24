@@ -12,11 +12,13 @@ interface CalendarEvent {
     self: boolean;
   };
   start: {
-    dateTime: string;
+    date: string;
+    dateTime?: string;
     timeZone: string;
   };
   end: {
-    dateTime: string;
+    date: string;
+    dateTime?: string;
     timeZone: string;
   };
   eventType: string;
@@ -39,7 +41,7 @@ export class ScheduleToast extends LitElement {
     dl {
       display: flex;
       flex-direction: column;
-      font-size: 3vmin;
+      font-size: 2.5vmin;
       padding: 0.5em 3em 0.5em 1em;
       background-color: #000;
       color: #fff;
@@ -124,7 +126,7 @@ export class ScheduleToast extends LitElement {
       this.items,
       (item) => item.id,
       (item) => {
-        const startDate = new Date(item.start.dateTime);
+        const startDate = new Date(item.start.dateTime ?? item.start.date);
         return html`
             <dl>
               <dt>${toEmojiSvg(item.summary)}</dt>

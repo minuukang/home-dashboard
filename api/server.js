@@ -102,17 +102,29 @@ app.get("/api/schedules", async (req, res) => {
     let data;
     if (!cache.has(cacheKey)) {
       const auth = createOAuthClient();
-      auth.setCredentials(req.query);
+      const credentials = {
+        access_token: req.query.access_token,
+        refresh_token: req.query.refresh_token,
+        scope: req.query.scope,
+        token_type: req.query.token_type,
+        expiry_date: req.query.expiry_date ? Number(req.query.expiry_date) : undefined,
+      };
+      auth.setCredentials(credentials);
 
       // 토큰 만료 시 자동 갱신 로직 추가
-      const isTokenExpired = req.query.expiry_date && new Date().getTime() > req.query.expiry_date;
+      const isTokenExpired = credentials.expiry_date && new Date().getTime() > credentials.expiry_date;
 
-      if (isTokenExpired && req.query.refresh_token) {
+      if (isTokenExpired && credentials.refresh_token) {
         try {
-          const { tokens } = await auth.refreshToken(req.query.refresh_token);
-          auth.setCredentials(tokens);
+          const { tokens } = await auth.refreshToken(credentials.refresh_token);
+          const mergedTokens = {
+            ...credentials,
+            ...tokens,
+            refresh_token: tokens.refresh_token || credentials.refresh_token,
+          };
+          auth.setCredentials(mergedTokens);
           // 새로운 자격 증명 클라이언트에 전달
-          res.locals.newTokens = tokens;
+          res.locals.newTokens = mergedTokens;
         } catch (refreshError) {
           console.error('토큰 갱신 실패:', refreshError);
           // 갱신 실패 시 401 상태로 응답

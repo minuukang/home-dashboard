@@ -6,7 +6,11 @@ import "./StockView";
 import "./WeatherInformation";
 import "./ScheduleToast";
 import "./Calender";
-import { getAccessTokenData, GoogleAccessToken } from "../helpers/auth";
+import {
+  getAccessTokenData,
+  GoogleAccessToken,
+  setAccessTokenData,
+} from "../helpers/auth";
 
 @customElement("home-dashboard")
 export class HomeDashboard extends LitElement {
@@ -45,8 +49,16 @@ export class HomeDashboard extends LitElement {
     this.classList.toggle("night", hours < 7);
   }
 
-  protected handleChangeAccessToken(event: CustomEvent<{ accessToken: GoogleAccessToken }>) {
-    this.accessToken = event.detail.accessToken;
+  protected handleChangeAccessToken(event: CustomEvent<{ accessToken: Partial<GoogleAccessToken> }>) {
+    if (!this.accessToken) {
+      return;
+    }
+    const nextToken = {
+      ...this.accessToken,
+      ...event.detail.accessToken,
+    };
+    this.accessToken = nextToken;
+    setAccessTokenData(nextToken);
   }
 
   public render() {

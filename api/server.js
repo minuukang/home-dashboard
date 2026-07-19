@@ -1,9 +1,8 @@
 const express = require("express");
-const fetch = require("node-fetch");
 const NodeCache = require("node-cache");
 const { google } = require("googleapis");
 
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 
 const app = express();
 const cache = new NodeCache({
@@ -12,21 +11,31 @@ const cache = new NodeCache({
 
 app.get("/api/stock", async (req, res) => {
   const code = req.query.code;
+  const type = req.query.type ?? "stock";
   if (!(typeof code === "string")) {
-    throw new Error("code is required");
+    return res.status(400).send({ error: "code is required" });
   }
-  const cacheKey = `stock:${code}`;
+  if (type !== "stock" && type !== "index") {
+    return res.status(400).send({ error: "type must be stock or index" });
+  }
+  if (!/^[A-Za-z0-9]+$/.test(code)) {
+    return res.status(400).send({ error: "code is invalid" });
+  }
+  const cacheKey = `${type}:${code}`;
   let data;
   if (!cache.has(cacheKey)) {
     const response = await fetch(
-      `https://m.stock.naver.com/api/stock/${code}/basic`
+      `https://m.stock.naver.com/api/${type}/${code}/basic`
     );
+    if (!response.ok) {
+      throw new Error(`Market API request failed with status ${response.status}`);
+    }
     data = await response.json();
     cache.set(cacheKey, data);
   } else {
     data = cache.get(cacheKey);
   }
-  res.send(data);
+  return res.send(data);
 });
 
 // Weather
@@ -69,6 +78,20 @@ app.get("/api/weather", async (req, res) => {
 });
 
 function createOAuthClient() {
+  const requiredVariables = [
+    "GOOGLE_OAUTH_CLIENT_ID",
+    "GOOGLE_OAUTH_CLIENT_SECRET",
+    "GOOGLE_OAUTH_CLIENT_REDIRECT_URI",
+  ];
+  const missingVariables = requiredVariables.filter(
+    (name) => !process.env[name]
+  );
+  if (missingVariables.length > 0) {
+    throw new Error(
+      `Missing Google OAuth environment variables: ${missingVariables.join(", ")}`
+    );
+  }
+
   return new google.auth.OAuth2(
     process.env.GOOGLE_OAUTH_CLIENT_ID,
     process.env.GOOGLE_OAUTH_CLIENT_SECRET,
@@ -110,27 +133,14 @@ app.get("/api/schedules", async (req, res) => {
         expiry_date: req.query.expiry_date ? Number(req.query.expiry_date) : undefined,
       };
       auth.setCredentials(credentials);
-
-      // 토큰 만료 시 자동 갱신 로직 추가
-      const isTokenExpired = credentials.expiry_date && new Date().getTime() > credentials.expiry_date;
-
-      if (isTokenExpired && credentials.refresh_token) {
-        try {
-          const { tokens } = await auth.refreshToken(credentials.refresh_token);
-          const mergedTokens = {
-            ...credentials,
-            ...tokens,
-            refresh_token: tokens.refresh_token || credentials.refresh_token,
-          };
-          auth.setCredentials(mergedTokens);
-          // 새로운 자격 증명 클라이언트에 전달
-          res.locals.newTokens = mergedTokens;
-        } catch (refreshError) {
-          console.error('토큰 갱신 실패:', refreshError);
-          // 갱신 실패 시 401 상태로 응답
-          return res.status(401).send({ error: '인증이 만료되었습니다. 다시 로그인해주세요.' });
-        }
-      }
+      let newTokens;
+      auth.on("tokens", (tokens) => {
+        newTokens = {
+          ...credentials,
+          ...tokens,
+          refresh_token: tokens.refresh_token || credentials.refresh_token,
+        };
+      });
 
       const calendar = google.calendar({ version: "v3", auth });
       const result = await calendar.events.list({
@@ -140,22 +150,38 @@ app.get("/api/schedules", async (req, res) => {
         singleEvents: true,
         orderBy: "startTime",
       });
-      data = result;
-
-      // 새로운 토큰이 있으면 응답에 포함
-      if (res.locals.newTokens) {
-        data.newTokens = res.locals.newTokens;
-      }
+      // Only return the Calendar resource body. The surrounding Gaxios response
+      // contains request internals and is not safe to JSON-serialize.
+      data = {
+        data: {
+          ...result.data,
+          ...(newTokens ? { newTokens } : {}),
+        },
+      };
 
       cache.set(cacheKey, data);
     } else {
       data = cache.get(cacheKey);
     }
-    res.send(data);
+    return res.send(data);
   } catch (err) {
-    console.error(err);
-    res.status(500).send(err);
+    const status = err?.response?.status;
+    console.error("Calendar API request failed:", err?.message ?? err);
+    if (status === 401 || status === 403) {
+      return res.status(401).send({
+        error: "Google Calendar authentication failed. Please sign in again.",
+      });
+    }
+    return res.status(500).send({ error: "Google Calendar request failed." });
   }
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  if (res.headersSent) {
+    return next(err);
+  }
+  return res.status(500).send({ error: err.message });
 });
 
 app.listen(3001, () => {

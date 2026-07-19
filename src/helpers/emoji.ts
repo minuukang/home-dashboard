@@ -5,10 +5,10 @@ import twemoji from "twemoji";
 export function toEmojiSvg(emoji: string) {
   return html`${unsafeHTML(
     twemoji.parse(emoji, {
-      base: "https://cdnjs.cloudflare.com/ajax/libs/twemoji/13.1.0/svg/",
+      base: "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/",
       ext: ".svg",
       callback(str, options) {
-        const { base, ext } = options as twemoji.ParseObject;
+        const { base, ext } = options as { base: string; ext: string };
         return `${base}${str}${ext}`;
       },
     })

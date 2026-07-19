@@ -2,7 +2,7 @@
 
 ## Development
 
-Node.js 24 and Yarn Classic are required. With [mise](https://mise.jdx.dev/):
+Node.js 22 and Yarn Classic are required. With [mise](https://mise.jdx.dev/):
 
 ```sh
 mise install

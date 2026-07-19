@@ -14,10 +14,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "apiserve": "nodemon ./api/server.js --watch ./api --ext js,json",
     "start": "node ./api/server.js",
-    "build-serve": "yarn build && concurrently --kill-others-on-fail \"yarn start\" \"http-server ./dist -a 0.0.0.0 -p 3000\""
+    "build-serve": "yarn build && concurrently --kill-others-on-fail \"yarn apiserve\" \"wait-on tcp:3001 && yarn preview\""
   },
   "main": "index.js",
   "author": "Minwoo Kang",
@@ -26,10 +27,10 @@
     "@types/node": "^22.20.1",
     "@vitejs/plugin-basic-ssl": "^2.1.0",
     "concurrently": "^9.2.1",
-    "http-server": "^14.1.1",
     "nodemon": "^3.1.14",
     "typescript": "^5.9.3",
-    "vite": "^8.1.5"
+    "vite": "^8.1.5",
+    "wait-on": "^9.0.10"
   },
   "dependencies": {
     "dotenv": "^17.4.2",

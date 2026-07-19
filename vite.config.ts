@@ -3,6 +3,9 @@ import basicSsl from "@vitejs/plugin-basic-ssl";
 
 export default defineConfig({
   plugins: [basicSsl()],
+  build: {
+    target: "es2020",
+  },
   server: {
     https: {},
     host: "0.0.0.0",

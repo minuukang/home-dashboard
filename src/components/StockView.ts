@@ -111,10 +111,13 @@ export class StockView extends LitElement {
   public code!: string;
 
   @property()
+  public type: "stock" | "index" = "stock";
+
+  @property()
   public name: string | undefined;
 
   protected fetcher = createFetcherAndAbortController(
-    () => `/api/stock?code=${this.code}`,
+    () => `/api/stock?type=${this.type}&code=${this.code}`,
     (json) => (this.data = json)
   );
 

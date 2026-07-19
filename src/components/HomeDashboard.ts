@@ -75,6 +75,7 @@ export class HomeDashboard extends LitElement {
       <stock-view
         name=${import.meta.env.VITE_STOCK_VIEW_NAME}
         code=${import.meta.env.VITE_STOCK_VIEW_CODE}
+        type=${import.meta.env.VITE_STOCK_VIEW_TYPE || "stock"}
       ></stock-view>
       <schedule-toast .accessToken=${this.accessToken} @change-access-token=${this.handleChangeAccessToken}></schedule-toast>
     `;

@@ -28,9 +28,8 @@ export const getAccessTokenData = async (): Promise<GoogleAccessToken> => {
       const response = await fetch("/api/google-token-url");
       const json = await response.json();
       location.href = json.url;
-    }
-    if (!tokenData) {
-      throw new Error();
+      // Keep this promise pending while the browser navigates to Google OAuth.
+      return await new Promise<never>(() => {});
     }
   }
   return JSON.parse(tokenData);

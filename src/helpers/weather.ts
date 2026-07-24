@@ -97,5 +97,6 @@ export function parseWeatherApi(result: WeatherResponse) {
     highTemperature: kelbinToCelsuis(result.main.temp_max), // 최고 온도
     lowTemperature: kelbinToCelsuis(result.main.temp_min), // 최저 온도
     airQuality: EMOJI_MAP[getAirQuality(result.list[0].main.aqi)], // 미세먼지 타입
+    humidity: result.main.humidity, // 습도
   };
 }

@@ -28,8 +28,9 @@ export const EMOJI_MAP = {
   not_raining: "🌂",
   ready_raining: "☂️",
   // 습도
-  humid: "💧",
-  dry: "🌡",
+  dry: "🌾",
+  normal: "🌿",
+  humid: "💦",
   // 풍속
   wind_soft: "🍃",
   wind_medium: "🪁",
@@ -45,6 +46,11 @@ export const EMOJI_MAP = {
 
 export function kelbinToCelsuis(input: number) {
   return Math.floor(input - 273.15);
+}
+function getHumidityLevel(humidity: number) {
+  if (humidity <= 30) return "dry";
+  if (humidity <= 60) return "normal";
+  return "humid";
 }
 
 function getAirQuality(air: number) {
@@ -97,6 +103,7 @@ export function parseWeatherApi(result: WeatherResponse) {
     highTemperature: kelbinToCelsuis(result.main.temp_max), // 최고 온도
     lowTemperature: kelbinToCelsuis(result.main.temp_min), // 최저 온도
     airQuality: EMOJI_MAP[getAirQuality(result.list[0].main.aqi)], // 미세먼지 타입
-    humidity: result.main.humidity, // 습도
+    humidity: EMOJI_MAP[getHumidityLevel(result.main.humidity)], // 습도
+    humidityValue: result.main.humidity, // 습도 수치
   };
 }

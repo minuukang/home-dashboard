@@ -61,8 +61,8 @@ export class WeatherInformation extends LitElement {
     const result = parseWeatherApi(this.data);
     return html`
       <p>
-        ${result.currentTemperature}℃ (${toEmojiSvg(result.weatherType)} &
-        ${toEmojiSvg(result.airQuality)}) 💧 ${result.humidity}%
+        ${toEmojiSvg(result.weatherType)} &
+        ${toEmojiSvg(result.airQuality)}) ${toEmojiSvg(result.humidity)} ${result.humidityValue}%
       </p>
     `;
   }

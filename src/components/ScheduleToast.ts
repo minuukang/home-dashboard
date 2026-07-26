@@ -7,20 +7,9 @@ import { toEmojiSvg } from "../helpers/emoji";
 
 interface CalendarEvent {
   created: string;
-  creator: {
-    email: string;
-    self: boolean;
-  };
-  start: {
-    date: string;
-    dateTime?: string;
-    timeZone: string;
-  };
-  end: {
-    date: string;
-    dateTime?: string;
-    timeZone: string;
-  };
+  creator: { email: string; self?: boolean };
+  start: { date?: string; dateTime?: string; timeZone?: string };
+  end: { date?: string; dateTime?: string; timeZone?: string };
   eventType: string;
   htmlLink: string;
   id: string;
@@ -60,6 +49,14 @@ export class ScheduleToast extends LitElement {
       right: 0;
       background-color: #f5ff00;
       content: "";
+    }
+
+    dl.mine::after {
+      background-color: #f5ff00;
+    }
+
+    dl.other::after {
+      background-color: #90ee90;
     }
 
     dl ~ dl {
@@ -126,8 +123,9 @@ export class ScheduleToast extends LitElement {
       (item) => item.id,
       (item) => {
         const startDate = new Date(item.start.dateTime ?? item.start.date);
+        const isMine = item.creator?.self === true;
         return html`
-            <dl>
+            <dl class="${isMine ? "mine" : "other"}">
               <dt>${toEmojiSvg(item.summary)}</dt>
               <dd>${startDate.toLocaleString()}</dd>
             </dl>

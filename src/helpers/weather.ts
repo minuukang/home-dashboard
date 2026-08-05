@@ -52,6 +52,12 @@ function getHumidityLevel(humidity: number) {
   if (humidity <= 60) return "normal";
   return "humid";
 }
+function calculateDewPoint(tempCelsius: number, humidityPercent: number): number {
+  const a = 17.27;
+  const b = 237.7;
+  const alpha = (a * tempCelsius) / (b + tempCelsius) + Math.log(humidityPercent / 100);
+  return Math.round((b * alpha) / (a - alpha));
+}
 
 function getAirQuality(air: number) {
   return AIR_QUALITYS[air - 1];
@@ -96,14 +102,17 @@ export interface WeatherResponse {
 
 export function parseWeatherApi(result: WeatherResponse) {
   const currentWeather = result.weather[0];
+  const tempCelsius = kelbinToCelsuis(result.main.temp);
+  const humidityPercent = result.main.humidity;
   return {
     name: result.name, // 이름
     weatherType: EMOJI_MAP[WEATHER_TYPE_MAP[currentWeather.main] || "sunny"], // 날씨 타입
-    currentTemperature: kelbinToCelsuis(result.main.temp), // 현재 온도
+    currentTemperature: tempCelsius, // 현재 온도
     highTemperature: kelbinToCelsuis(result.main.temp_max), // 최고 온도
     lowTemperature: kelbinToCelsuis(result.main.temp_min), // 최저 온도
     airQuality: EMOJI_MAP[getAirQuality(result.list[0].main.aqi)], // 미세먼지 타입
-    humidity: EMOJI_MAP[getHumidityLevel(result.main.humidity)], // 습도
-    humidityValue: result.main.humidity, // 습도 수치
+    humidity: EMOJI_MAP[getHumidityLevel(humidityPercent)], // 습도
+    humidityValue: humidityPercent, // 습도 수치
+    dewPoint: calculateDewPoint(tempCelsius, humidityPercent), // 이슬점
   };
 }

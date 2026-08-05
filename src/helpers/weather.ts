@@ -31,14 +31,6 @@ export const EMOJI_MAP = {
   dry: "🌾",
   normal: "🌿",
   humid: "💦",
-  // 이슬점
-  veryDry: "😐",
-  comfortable: "😊",
-  slightlyHumid: "🙂",
-  moderatelyHumid: "😕",
-  veryHumid: "😟",
-  extremelyHumid: "🥵",
-  dangerous: "💀",
   // 풍속
   wind_soft: "🍃",
   wind_medium: "🪁",
@@ -66,14 +58,14 @@ function calculateDewPoint(tempCelsius: number, humidityPercent: number): number
   const alpha = (a * tempCelsius) / (b + tempCelsius) + Math.log(humidityPercent / 100);
   return Math.round((b * alpha) / (a - alpha));
 }
-function getDewPointEmoji(dewPoint: number): string {
-  if (dewPoint <= 10) return EMOJI_MAP.veryDry;
-  if (dewPoint <= 15) return EMOJI_MAP.comfortable;
-  if (dewPoint <= 18) return EMOJI_MAP.slightlyHumid;
-  if (dewPoint <= 21) return EMOJI_MAP.moderatelyHumid;
-  if (dewPoint <= 24) return EMOJI_MAP.veryHumid;
-  if (dewPoint <= 26) return EMOJI_MAP.extremelyHumid;
-  return EMOJI_MAP.dangerous;
+function getDewPointLabel(dewPoint: number): string {
+  if (dewPoint <= 10) return "매우 건조함";
+  if (dewPoint <= 15) return "쾌적함";
+  if (dewPoint <= 18) return "보통";
+  if (dewPoint <= 21) return "약간 습함";
+  if (dewPoint <= 24) return "매우 습함";
+  if (dewPoint <= 26) return "매우 매우 습함";
+  return "위험 수준";
 }
 
 function getAirQuality(air: number) {
@@ -131,6 +123,6 @@ export function parseWeatherApi(result: WeatherResponse) {
     humidity: EMOJI_MAP[getHumidityLevel(humidityPercent)], // 습도
     humidityValue: humidityPercent, // 습도 수치
     dewPoint: calculateDewPoint(tempCelsius, humidityPercent), // 이슬점
-    dewPointEmoji: getDewPointEmoji(calculateDewPoint(tempCelsius, humidityPercent)), // 이슬점 이모지
+    dewPointLabel: getDewPointLabel(calculateDewPoint(tempCelsius, humidityPercent)), // 이슬점
   };
 }

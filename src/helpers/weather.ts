@@ -124,5 +124,6 @@ export function parseWeatherApi(result: WeatherResponse) {
     humidity: EMOJI_MAP[getHumidityLevel(humidityPercent)], // 습도
     humidityValue: humidityPercent, // 습도 수치
     dewPointInfo: getDewPointInfo(calculateDewPoint(tempCelsius, humidityPercent)), // 이슬점
+    feelsLike: kelbinToCelsuis(result.main.feels_like), // 체감 온도
   };
 }

@@ -52,21 +52,6 @@ function getHumidityLevel(humidity: number) {
   if (humidity <= 60) return "normal";
   return "humid";
 }
-function calculateDewPoint(tempCelsius: number, humidityPercent: number): number {
-  const a = 17.27;
-  const b = 237.7;
-  const alpha = (a * tempCelsius) / (b + tempCelsius) + Math.log(humidityPercent / 100);
-  return Math.round((b * alpha) / (a - alpha));
-}
-function getDewPointLabel(dewPoint: number): string {
-  if (dewPoint <= 10) return "매우 건조함";
-  if (dewPoint <= 15) return "쾌적함";
-  if (dewPoint <= 18) return "보통";
-  if (dewPoint <= 21) return "약간 습함";
-  if (dewPoint <= 24) return "매우 습함";
-  if (dewPoint <= 26) return "매우 매우 습함";
-  return "위험 수준";
-}
 
 function getAirQuality(air: number) {
   return AIR_QUALITYS[air - 1];
@@ -122,7 +107,5 @@ export function parseWeatherApi(result: WeatherResponse) {
     airQuality: EMOJI_MAP[getAirQuality(result.list[0].main.aqi)], // 미세먼지 타입
     humidity: EMOJI_MAP[getHumidityLevel(humidityPercent)], // 습도
     humidityValue: humidityPercent, // 습도 수치
-    dewPoint: calculateDewPoint(tempCelsius, humidityPercent), // 이슬점
-    dewPointLabel: getDewPointLabel(calculateDewPoint(tempCelsius, humidityPercent)), // 이슬점
   };
 }

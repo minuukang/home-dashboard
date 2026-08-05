@@ -62,7 +62,7 @@ export class WeatherInformation extends LitElement {
     return html`
       <p>
         ${result.currentTemperature}℃ (${toEmojiSvg(result.weatherType)} & ${toEmojiSvg(result.airQuality)})
-        ${result.dewPointInfo.emoji} ${result.dewPointInfo.label} (${result.feelsLike}℃)
+        ${toEmojiSvg(result.dewPointInfo.emoji)} ${result.dewPointInfo.label} (${result.feelsLike}℃)
     `;
   }
 }

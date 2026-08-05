@@ -9,7 +9,7 @@ export class WeatherInformation extends LitElement {
   public static styles = css`
     :host {
       font-family: "HYBE";
-      font-size: 5vmin;
+      font-size: 4.5vmin;
       display: flex;
       align-items: center;
       justify-content: center;
